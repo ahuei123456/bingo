@@ -1,0 +1,40 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(5, 120px); /* Double the width of each column */
+  grid-template-rows: repeat(5, 120px); /* Double the height of each row */
+  gap: 20px; /* Double the gap between columns and rows */
+}
+
+.grid-button {
+  width: 100%;
+  height: 100%;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-button.highlighted {
+  background-color: #86c7f3; /* Change the background color for highlighted buttons */
+}
+
+.grid-button.bingo {
+  background-color: #ff933b; /* Change the background color for highlighted buttons */
+}
+
+/* Add the following styles for the reroll button */
+.reroll-button {
+  margin-top: 20px; /* Adjust margin as needed */
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px;
+}
