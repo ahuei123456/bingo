@@ -3,19 +3,19 @@ import './App.css';
 
 const App = () => {
   const [buttonState, setButtonState] = useState(Array(25).fill({ number: null, highlighted: false, bingo: false }));
-  const [bingo, setBingo] = useState(false);
-  const [generatedNumbers, setGeneratedNumbers] = useState(new Set());
+  const [bingoState, setBingo] = useState(false);
+  const [numbersArray, setNumberState] = useState([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]);
+  const [timestamp, setTimestamp] = useState();
 
-  // Function to generate a random number between 1 and 100 (avoiding duplicates)
-  const generateRandomNumber = () => {
-    let newNumber;
-    do {
-      newNumber = Math.floor(Math.random() * 100) + 1;
-    } while (generatedNumbers.has(newNumber));
-
-    setGeneratedNumbers((prevGeneratedNumbers) => new Set(prevGeneratedNumbers.add(newNumber)));
-    return newNumber;
+  const shuffleNumbers = () => {
+    const shuffledArray = [...numbersArray];
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+    }
+    setNumberState(shuffledArray);
   };
+
   // Function to handle button click
   const handleButtonClick = (index) => {
     setButtonState((prevButtonState) => {
@@ -27,23 +27,28 @@ const App = () => {
 
   // Function to handle reroll button click
   const handleRerollClick = () => {
-    setGeneratedNumbers(() => new Set());
+    shuffleNumbers();
     setButtonState((prevButtonState) => {
-      const newButtonState = prevButtonState.map(button => ({
-        number: generateRandomNumber(),
+      const newButtonState = prevButtonState.map((button, index) => ({
+        number: numbersArray[index],
         highlighted: false,
         bingo: false
       }));
       return newButtonState;
     });    
-    setBingo(false);
+    setBingo(false);    
+    const options = { timeZone: 'Asia/Tokyo', timeZoneName: 'short' };
+    setTimestamp(new Date().toLocaleString('en-US', options)); // Update the timestamp to JST
   };
 
   useEffect(() => {
     // Initialize random numbers when the component mounts
     setButtonState((prevButtonState) =>
-      prevButtonState.map((button) => ({ ...button, number: generateRandomNumber() }))
+      prevButtonState.map((button, index) => ({ ...button, number: numbersArray[index] }))
     );
+
+    const options = { timeZone: 'Asia/Tokyo', timeZoneName: 'short' };
+    setTimestamp(new Date().toLocaleString('en-US', options)); // Set the initial timestamp to JST
   }, []); // Empty dependency array ensures this effect runs only once on mount
 
   useEffect(() => {
@@ -89,7 +94,7 @@ const App = () => {
   // Function to check diagonals for Bingo
   const checkDiagonals = () => {
     const leftToRightDiagonal = buttonState.filter((_, index) => index % 6 === 0);
-    const rightToLeftDiagonal = buttonState.filter((_, index) => index % 4 === 0 && index !== 20);
+    const rightToLeftDiagonal = buttonState.filter((_, index) => index % 4 === 0 && index !== 0 && index !== 24);
 
     if (leftToRightDiagonal.every((button) => button.highlighted)) {
       highlightBingoButtons(0, 6, 12, 18, 24);
@@ -116,7 +121,7 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1>{bingo ? 'Bingo!' : '/r/LL Love Live! Unit Koshien Bingo'}</h1>
+      <h1>{bingoState ? 'Bingo!' : '/r/LL Love Live! Unit Koshien Bingo'}</h1>
       <div className="grid-container">
         {buttonState.map(({ number, highlighted, bingo }, index) => (
           <button
@@ -127,6 +132,9 @@ const App = () => {
             {number}
           </button>
         ))}
+      </div>
+      <div className="timestamp-box">
+        <p>Timestamp: {timestamp}</p>
       </div>
       <button className="reroll-button" onClick={handleRerollClick}>
         Reroll
